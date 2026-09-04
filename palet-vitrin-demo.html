@@ -1,0 +1,342 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Palet Vitrin — 10 Demo</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;600;700&family=IBM+Plex+Mono:wght@400;500&display=swap');
+
+  * { margin:0; padding:0; box-sizing:border-box; }
+  html, body { height:100%; overscroll-behavior:none; }
+  body {
+    font-family:'Space Grotesk', system-ui, sans-serif;
+    background:#0a0a0a;
+    color:#fff;
+    -webkit-font-smoothing:antialiased;
+  }
+
+  /* ---------- yatay kaydırmalı sahne ---------- */
+  .scroller {
+    display:flex;
+    width:100vw;
+    height:100dvh;
+    overflow-x:auto;
+    overflow-y:hidden;
+    scroll-snap-type:x mandatory;
+    scrollbar-width:none;
+  }
+  .scroller::-webkit-scrollbar { display:none; }
+
+  .scroller.settling { transition: transform .38s cubic-bezier(.34,1.56,.64,1); }
+
+  .panel {
+    position:relative;
+    flex:0 0 100vw;
+    height:100%;
+    scroll-snap-align:start;
+    overflow:hidden;
+    display:flex;
+    flex-direction:column;
+    padding: 28px 20px 22px;
+  }
+
+  /* ---------- arka plan: katmanlı, yavaşça süzülen renk lekeleri ---------- */
+  .panel-bg { position:absolute; inset:0; z-index:0; }
+  .blob {
+    position:absolute;
+    border-radius:50%;
+    filter: blur(60px);
+    opacity:.55;
+    animation: drift 14s ease-in-out infinite;
+  }
+  .vignette {
+    position:absolute; inset:0;
+    background: radial-gradient(120% 90% at 50% 15%, transparent 30%, rgba(0,0,0,.55) 100%);
+  }
+  @keyframes drift {
+    0%,100% { transform: translate(0,0) scale(1); }
+    33%     { transform: translate(4%,-5%) scale(1.08); }
+    66%     { transform: translate(-3%,4%) scale(0.96); }
+  }
+
+  /* ---------- üst şerit ---------- */
+  .topbar {
+    position:relative; z-index:2;
+    display:flex; align-items:center; justify-content:space-between;
+  }
+  .brand { display:flex; align-items:center; gap:9px; font-weight:600; font-size:13px; letter-spacing:.02em; }
+  .brand .dot {
+    width:26px; height:26px; border-radius:50%;
+    border:1.4px solid rgba(255,255,255,.75);
+    display:flex; align-items:center; justify-content:center;
+    font-size:12px;
+  }
+  .index { font-family:'IBM Plex Mono', monospace; font-size:13px; opacity:.75; letter-spacing:.04em; }
+
+  /* ---------- kart yığını ---------- */
+  .stack {
+    position:relative; z-index:2;
+    flex:1;
+    display:flex; flex-direction:column; justify-content:center;
+    gap:10px;
+    max-width:520px;
+    margin:0 auto;
+    width:100%;
+  }
+
+  .card {
+    border-radius:22px;
+    padding:18px 20px;
+    display:flex; align-items:center; justify-content:space-between;
+    gap:14px;
+    box-shadow: 0 10px 26px -12px rgba(0,0,0,.5);
+    opacity:0; transform: translateY(26px) scale(.94);
+    transition: opacity .55s cubic-bezier(.2,.9,.25,1.35), transform .55s cubic-bezier(.2,.9,.25,1.35);
+    animation: bob 5.5s ease-in-out infinite;
+  }
+  .panel.in-view .card { opacity:1; transform: translateY(0) scale(1); }
+
+  @keyframes bob {
+    0%,100% { margin-top:0px; }
+    50%     { margin-top:-6px; }
+  }
+
+  .card:active { transform: scale(.96) rotate(-0.6deg); }
+
+  .card-text h3 {
+    font-size:17px; font-weight:700; letter-spacing:.01em; line-height:1.05; margin-bottom:3px;
+  }
+  .card-text p { font-size:11.5px; opacity:.75; line-height:1.3; max-width:230px; }
+  .card-hex { font-family:'IBM Plex Mono', monospace; font-size:11px; opacity:.8; margin-top:9px; }
+  .card-hex b { font-weight:600; }
+
+  .coin {
+    width:30px; height:16px; flex:none; opacity:.85;
+  }
+
+  /* ---------- alt şerit ---------- */
+  .bottombar {
+    position:relative; z-index:2;
+    display:flex; align-items:center; justify-content:space-between;
+    font-size:12px; opacity:.85;
+  }
+  .swipe-hint { display:flex; align-items:center; gap:8px; font-weight:600; }
+  .arrow-btn {
+    width:26px; height:26px; border-radius:50%;
+    background:rgba(255,255,255,.92); color:#111;
+    display:flex; align-items:center; justify-content:center;
+    animation: nudge 1.6s ease-in-out infinite;
+    font-size:13px;
+  }
+  @keyframes nudge {
+    0%,100% { transform: translateX(0); }
+    50%     { transform: translateX(3px); }
+  }
+
+  /* ---------- alt nokta göstergesi (sabit) ---------- */
+  .dots {
+    position:fixed; left:50%; bottom:14px; transform:translateX(-50%);
+    z-index:10;
+    display:flex; gap:6px;
+    padding:7px 10px;
+    background:rgba(0,0,0,.35);
+    border-radius:999px;
+    backdrop-filter: blur(6px);
+  }
+  .dots span {
+    width:5.5px; height:5.5px; border-radius:50%;
+    background:rgba(255,255,255,.35);
+    transition: all .3s cubic-bezier(.34,1.56,.64,1);
+  }
+  .dots span.active { background:#fff; width:16px; }
+</style>
+</head>
+<body>
+
+<div class="scroller" id="scroller"></div>
+<div class="dots" id="dots"></div>
+
+<script>
+const PALETTES = [
+  { title:"Espresso Lounge", colors:[
+    {n:"Espresso Black", d:"En koyu temel ton, yapı için", h:"#1C1714"},
+    {n:"Warm Taupe", d:"Toprak tonlu, lüks ara renk", h:"#8B7765"},
+    {n:"Soft Sand", d:"Dengeleyici yumuşak nötr", h:"#D8C8B4"},
+    {n:"Ivory Cream", d:"Ferah, değerli boşluk rengi", h:"#F5EFE6"},
+    {n:"Muted Gold", d:"Sakin, sıcak metalik vurgu", h:"#B99A5B"},
+  ]},
+  { title:"Stüdyo Beton", colors:[
+    {n:"Charcoal Ink", d:"Rafine, neredeyse siyah taban", h:"#242424"},
+    {n:"Stone Gray", d:"Yapısal, endüstriyel orta ton", h:"#8D8A84"},
+    {n:"Plaster White", d:"Sıcak, parlak galeri beyazı", h:"#F3F0EA"},
+    {n:"Clay Beige", d:"Dokunsal, çiğ seramik detayı", h:"#C3A78E"},
+    {n:"Burnt Umber", d:"Zengin toprak terracotta vurgu", h:"#7A4F3A"},
+  ]},
+  { title:"Botanik Gölge", colors:[
+    {n:"Deep Olive", d:"Köklü, bitkisel gölge tabanı", h:"#2F3A2E"},
+    {n:"Sage Gray", d:"Yumuşak, tozlu gümüş-yeşil", h:"#8E9A86"},
+    {n:"Bone White", d:"Doğal, ağartılmamış kanvas", h:"#ECE7DC"},
+    {n:"Soft Moss", d:"Canlı, modern yeşillik tonu", h:"#BBC7A4"},
+    {n:"Cocoa Brown", d:"Kabuk ve toprak kontrast rengi", h:"#5D4538"},
+  ]},
+  { title:"Teknik Masa", colors:[
+    {n:"Midnight Navy", d:"Premium, teknik koyu ton", h:"#18202F"},
+    {n:"Slate Blue", d:"Kurumsal, sakin ikincil renk", h:"#68748A"},
+    {n:"Mist Gray", d:"Soğuk metal arayüz zemini", h:"#DCE1E6"},
+    {n:"Warm White", d:"Temiz, editoryal açık yüzey", h:"#FAF7F2"},
+    {n:"Copper Accent", d:"Sıcak, mekanik aktif vurgu", h:"#B8734F"},
+  ]},
+  { title:"Okyanus Pusu", colors:[
+    {n:"Deep Teal", d:"Derin, sakin denizel taban", h:"#16302E"},
+    {n:"Marine Gray", d:"Yıkanmış gemi metali tonu", h:"#5C7A78"},
+    {n:"Sea Foam", d:"Açık, ferahlatıcı ara renk", h:"#A9C7BE"},
+    {n:"Pearl Mist", d:"Pürüzsüz, sisli açık zemin", h:"#EFF5F1"},
+    {n:"Coral Glow", d:"Canlı, sıcak mercan vurgusu", h:"#D97757"},
+  ]},
+  { title:"Paris Sokağı", colors:[
+    {n:"Soft Black", d:"Zamansız, yapısal derinlik", h:"#211F1D"},
+    {n:"Greige", d:"Toprak tonlu modern denge", h:"#A39A90"},
+    {n:"Linen", d:"Yumuşak, sıcak boşluk rengi", h:"#E8DFD3"},
+    {n:"Pearl", d:"Net, müze kalitesinde beyaz", h:"#F7F4EF"},
+    {n:"Dusty Rose", d:"Sakin, romantik vurgu tonu", h:"#B68A82"},
+  ]},
+  { title:"Karanlık Panel", colors:[
+    {n:"Carbon", d:"Keskin, koyu arayüz temeli", h:"#101317"},
+    {n:"Graphite", d:"Katı, yapısal kapsayıcı ton", h:"#343A40"},
+    {n:"Cool Silver", d:"Cilalı alüminyum orta ton", h:"#AAB2BD"},
+    {n:"Frost White", d:"Temiz, aydınlık panel zemini", h:"#F4F7FA"},
+    {n:"Electric Blue", d:"Güvenli, odak noktası vurgu", h:"#3B82F6"},
+  ]},
+  { title:"Çöl Alacakaranlığı", colors:[
+    {n:"Deep Walnut", d:"Zengin, dayanıklı zemin tonu", h:"#3A2A22"},
+    {n:"Terracotta", d:"Toprak, pişmiş kil pigmenti", h:"#B86F52"},
+    {n:"Desert Sand", d:"Güneşte yıkanmış denge tonu", h:"#D9BFA3"},
+    {n:"Warm Cream", d:"Davetkâr, sıcak editoryal fon", h:"#F3E7D8"},
+    {n:"Olive Dust", d:"Sakin, bitkisel vurgu rengi", h:"#8C8A68"},
+  ]},
+  { title:"Kadife Salon", colors:[
+    {n:"Pure Black", d:"Mutlak, yüksek kontrast lüks", h:"#0E0E0E"},
+    {n:"Rich Charcoal", d:"Koyu, mat taş vurgusu", h:"#2B2B2B"},
+    {n:"Warm Gray", d:"Terzi işi geçiş gölgesi", h:"#9A948B"},
+    {n:"Champagne", d:"Değerli, sıcak metalik ton", h:"#D8C49A"},
+    {n:"Soft Ivory", d:"Saten dokulu lüks zemin", h:"#FFF8EA"},
+  ]},
+  { title:"Altın Saat", colors:[
+    {n:"Espresso", d:"Koyu, kavrulmuş temel ton", h:"#2A1B12"},
+    {n:"Amber Clay", d:"Sıcak, kilden gelen orta ton", h:"#A8623C"},
+    {n:"Honey Sand", d:"Bal rengi yumuşak denge", h:"#D9A968"},
+    {n:"Cream Gold", d:"Parlak, altın yaldızlı zemin", h:"#F6E4C4"},
+    {n:"Sunset Rose", d:"Gün batımı vurgu tonu", h:"#E0876B"},
+  ]},
+];
+
+function luminance(hex){
+  const c = hex.replace('#','');
+  const r = parseInt(c.substr(0,2),16)/255;
+  const g = parseInt(c.substr(2,2),16)/255;
+  const b = parseInt(c.substr(4,2),16)/255;
+  const f = v => v<=0.03928 ? v/12.92 : Math.pow((v+0.055)/1.055, 2.4);
+  return 0.2126*f(r)+0.7152*f(g)+0.0722*f(b);
+}
+function textColor(hex){ return luminance(hex) > 0.42 ? '#171310' : '#FBF8F3'; }
+
+const scroller = document.getElementById('scroller');
+const dotsWrap = document.getElementById('dots');
+
+PALETTES.forEach((pal, pIdx) => {
+  const panel = document.createElement('div');
+  panel.className = 'panel';
+  panel.style.background = pal.colors[0].h;
+
+  const bg = document.createElement('div');
+  bg.className = 'panel-bg';
+  bg.innerHTML = `
+    <div class="blob" style="width:60vw;height:60vw;left:-15%;top:-10%;background:${pal.colors[4].h};animation-delay:0s;"></div>
+    <div class="blob" style="width:50vw;height:50vw;right:-10%;top:30%;background:${pal.colors[2].h};animation-delay:-5s;"></div>
+    <div class="blob" style="width:45vw;height:45vw;left:20%;bottom:-15%;background:${pal.colors[1].h};animation-delay:-9s;"></div>
+    <div class="vignette"></div>
+  `;
+  panel.appendChild(bg);
+
+  const topbar = document.createElement('div');
+  topbar.className = 'topbar';
+  topbar.innerHTML = `
+    <div class="brand"><span class="dot">↗</span>PALET STÜDYO</div>
+    <div class="index">${String(pIdx+1).padStart(2,'0')} / ${PALETTES.length}</div>
+  `;
+  panel.appendChild(topbar);
+
+  const stack = document.createElement('div');
+  stack.className = 'stack';
+  pal.colors.forEach((c, cIdx) => {
+    const card = document.createElement('div');
+    card.className = 'card';
+    card.style.background = c.h;
+    card.style.color = textColor(c.h);
+    card.style.animationDelay = (cIdx*0.35)+'s';
+    card.style.transitionDelay = (cIdx*0.07)+'s';
+    card.innerHTML = `
+      <div class="card-text">
+        <h3>${c.n}</h3>
+        <p>${c.d}</p>
+        <div class="card-hex">HEX: <b>${c.h.toUpperCase()}</b></div>
+      </div>
+      <svg class="coin" viewBox="0 0 30 16" fill="none">
+        <ellipse cx="15" cy="4" rx="13" ry="3.2" stroke="currentColor" stroke-width="1.2" opacity=".8"/>
+        <ellipse cx="15" cy="8" rx="13" ry="3.2" stroke="currentColor" stroke-width="1.2" opacity=".55"/>
+        <ellipse cx="15" cy="12" rx="13" ry="3.2" stroke="currentColor" stroke-width="1.2" opacity=".3"/>
+      </svg>
+    `;
+    card.addEventListener('click', () => {
+      card.style.transform = 'scale(0.93) rotate(-1.2deg)';
+      setTimeout(() => { card.style.transform = ''; }, 220);
+    });
+    stack.appendChild(card);
+  });
+  panel.appendChild(stack);
+
+  const bottombar = document.createElement('div');
+  bottombar.className = 'bottombar';
+  bottombar.style.color = textColor(pal.colors[0].h) === '#171310' ? '#171310' : '#fff';
+  bottombar.innerHTML = `
+    <div>✦ palet.stüdyo</div>
+    <div class="swipe-hint">Kaydırarak gezin <span class="arrow-btn">›</span></div>
+  `;
+  panel.appendChild(bottombar);
+
+  scroller.appendChild(panel);
+
+  const dot = document.createElement('span');
+  if (pIdx === 0) dot.className = 'active';
+  dotsWrap.appendChild(dot);
+});
+
+/* ---------- görünüme girince kartları canlandır ---------- */
+const panels = Array.from(document.querySelectorAll('.panel'));
+const dots = Array.from(document.querySelectorAll('.dots span'));
+
+const io = new IntersectionObserver((entries) => {
+  entries.forEach(entry => {
+    if (entry.isIntersecting && entry.intersectionRatio > 0.6) {
+      entry.target.classList.add('in-view');
+      const idx = panels.indexOf(entry.target);
+      dots.forEach((d,i) => d.classList.toggle('active', i===idx));
+    } else {
+      entry.target.classList.remove('in-view');
+    }
+  });
+}, { threshold: [0, 0.6, 1] });
+
+panels.forEach(p => io.observe(p));
+
+/* ---------- kaydırma sırasında hafif "jöle" sıkışma hissi ---------- */
+let scrollTimer;
+scroller.addEventListener('scroll', () => {
+  scroller.style.filter = 'saturate(1.08)';
+  clearTimeout(scrollTimer);
+  scrollTimer = setTimeout(() => { scroller.style.filter = ''; }, 160);
+}, { passive:true });
+</script>
+</body>
+</html>

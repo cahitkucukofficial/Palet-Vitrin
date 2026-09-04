@@ -1,0 +1,316 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Palet Serisi — 10 Instagram Gönderisi</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;600;700&family=IBM+Plex+Mono:wght@400;500&display=swap');
+
+  * { margin:0; padding:0; box-sizing:border-box; }
+  html, body { background:#0a0a0a; }
+  body {
+    font-family:'Space Grotesk', system-ui, sans-serif;
+    color:#fff;
+    -webkit-font-smoothing:antialiased;
+    padding: 44px 0 64px;
+  }
+
+  .page-head {
+    text-align:center;
+    margin-bottom:32px;
+    padding: 0 16px;
+  }
+  .page-head .eyebrow {
+    font-family:'IBM Plex Mono', monospace;
+    font-size:11px;
+    letter-spacing:.14em;
+    text-transform:uppercase;
+    opacity:.5;
+    margin-bottom:8px;
+  }
+  .page-head h1 {
+    font-size:clamp(22px,5vw,30px);
+    font-weight:700;
+    letter-spacing:-.01em;
+  }
+
+  .feed {
+    display:flex;
+    flex-direction:column;
+    align-items:center;
+    gap:46px;
+    padding: 0 16px;
+  }
+
+  /* ---------- kare gönderi (1:1) ---------- */
+  .post {
+    position:relative;
+    width:min(92vw, 520px);
+    aspect-ratio: 1 / 1;
+    border-radius:26px;
+    overflow:hidden;
+    display:flex;
+    flex-direction:column;
+    padding: 26px 24px 22px;
+    box-shadow: 0 24px 60px -22px rgba(0,0,0,.65);
+  }
+
+  .post-bg { position:absolute; inset:0; z-index:0; }
+  .blob {
+    position:absolute;
+    border-radius:50%;
+    filter: blur(60px);
+    opacity:.55;
+    animation: drift 14s ease-in-out infinite;
+  }
+  .vignette {
+    position:absolute; inset:0;
+    background: radial-gradient(120% 90% at 50% 10%, transparent 30%, rgba(0,0,0,.5) 100%);
+  }
+  @keyframes drift {
+    0%,100% { transform: translate(0,0) scale(1); }
+    33%     { transform: translate(4%,-5%) scale(1.08); }
+    66%     { transform: translate(-3%,4%) scale(0.96); }
+  }
+
+  /* ---------- üst şerit ---------- */
+  .topbar {
+    position:relative; z-index:2;
+    display:flex; align-items:center; justify-content:space-between;
+  }
+  .brand { display:flex; align-items:center; gap:8px; font-weight:600; font-size:12px; letter-spacing:.02em; }
+  .brand .dot {
+    width:22px; height:22px; border-radius:50%;
+    border:1.3px solid rgba(255,255,255,.75);
+    display:flex; align-items:center; justify-content:center;
+    font-size:11px;
+  }
+  .index { font-family:'IBM Plex Mono', monospace; font-size:12px; opacity:.75; letter-spacing:.04em; }
+
+  /* ---------- başlık ---------- */
+  .title-wrap { position:relative; z-index:2; margin: 16px 0 14px; }
+  .title-wrap h2 {
+    font-size:clamp(25px, 6.4vw, 36px);
+    font-weight:700;
+    letter-spacing:-.01em;
+    line-height:1.02;
+    opacity:0;
+    transform: translateY(16px);
+    transition: opacity .6s cubic-bezier(.2,.9,.25,1.35), transform .6s cubic-bezier(.2,.9,.25,1.35);
+  }
+  .post.in-view .title-wrap h2 { opacity:1; transform: translateY(0); }
+
+  /* ---------- 5 renk şeridi ---------- */
+  .strip {
+    position:relative; z-index:2;
+    flex:1;
+    display:flex;
+    gap:7px;
+    min-height:0;
+  }
+  .swatch {
+    flex:1;
+    border-radius:16px;
+    display:flex;
+    flex-direction:column;
+    justify-content:flex-end;
+    padding: 12px 9px;
+    opacity:0;
+    transform: translateY(34px) scaleY(.9);
+    transform-origin:bottom;
+    transition: opacity .55s cubic-bezier(.2,.9,.25,1.35), transform .55s cubic-bezier(.2,.9,.25,1.35);
+    animation: bob 4.6s ease-in-out infinite;
+    box-shadow: 0 8px 18px -10px rgba(0,0,0,.4);
+  }
+  .post.in-view .swatch { opacity:1; transform: translateY(0) scaleY(1); }
+
+  @keyframes bob {
+    0%,100% { margin-top:0px; }
+    50%     { margin-top:-9px; }
+  }
+
+  .swatch-name { font-size:11.5px; font-weight:700; line-height:1.15; margin-bottom:3px; }
+  .swatch-hex { font-family:'IBM Plex Mono', monospace; font-size:9.5px; opacity:.85; }
+
+  /* ---------- alt şerit ---------- */
+  .bottombar {
+    position:relative; z-index:2;
+    display:flex; align-items:center; justify-content:space-between;
+    font-size:11.5px; opacity:.9;
+    margin-top:14px;
+  }
+</style>
+</head>
+<body>
+
+<div class="page-head">
+  <div class="eyebrow">Palet Stüdyo · Seri</div>
+  <h1>10 Kare Gönderi</h1>
+</div>
+
+<div class="feed" id="feed"></div>
+
+<script>
+const PALETTES = [
+  { title:"Espresso Lounge", colors:[
+    {n:"Espresso Black", h:"#1C1714"},
+    {n:"Warm Taupe", h:"#8B7765"},
+    {n:"Soft Sand", h:"#D8C8B4"},
+    {n:"Ivory Cream", h:"#F5EFE6"},
+    {n:"Muted Gold", h:"#B99A5B"},
+  ]},
+  { title:"Stüdyo Beton", colors:[
+    {n:"Charcoal Ink", h:"#242424"},
+    {n:"Stone Gray", h:"#8D8A84"},
+    {n:"Plaster White", h:"#F3F0EA"},
+    {n:"Clay Beige", h:"#C3A78E"},
+    {n:"Burnt Umber", h:"#7A4F3A"},
+  ]},
+  { title:"Botanik Gölge", colors:[
+    {n:"Deep Olive", h:"#2F3A2E"},
+    {n:"Sage Gray", h:"#8E9A86"},
+    {n:"Bone White", h:"#ECE7DC"},
+    {n:"Soft Moss", h:"#BBC7A4"},
+    {n:"Cocoa Brown", h:"#5D4538"},
+  ]},
+  { title:"Teknik Masa", colors:[
+    {n:"Midnight Navy", h:"#18202F"},
+    {n:"Slate Blue", h:"#68748A"},
+    {n:"Mist Gray", h:"#DCE1E6"},
+    {n:"Warm White", h:"#FAF7F2"},
+    {n:"Copper Accent", h:"#B8734F"},
+  ]},
+  { title:"Okyanus Pusu", colors:[
+    {n:"Deep Teal", h:"#16302E"},
+    {n:"Marine Gray", h:"#5C7A78"},
+    {n:"Sea Foam", h:"#A9C7BE"},
+    {n:"Pearl Mist", h:"#EFF5F1"},
+    {n:"Coral Glow", h:"#D97757"},
+  ]},
+  { title:"Paris Sokağı", colors:[
+    {n:"Soft Black", h:"#211F1D"},
+    {n:"Greige", h:"#A39A90"},
+    {n:"Linen", h:"#E8DFD3"},
+    {n:"Pearl", h:"#F7F4EF"},
+    {n:"Dusty Rose", h:"#B68A82"},
+  ]},
+  { title:"Karanlık Panel", colors:[
+    {n:"Carbon", h:"#101317"},
+    {n:"Graphite", h:"#343A40"},
+    {n:"Cool Silver", h:"#AAB2BD"},
+    {n:"Frost White", h:"#F4F7FA"},
+    {n:"Electric Blue", h:"#3B82F6"},
+  ]},
+  { title:"Çöl Alacakaranlığı", colors:[
+    {n:"Deep Walnut", h:"#3A2A22"},
+    {n:"Terracotta", h:"#B86F52"},
+    {n:"Desert Sand", h:"#D9BFA3"},
+    {n:"Warm Cream", h:"#F3E7D8"},
+    {n:"Olive Dust", h:"#8C8A68"},
+  ]},
+  { title:"Kadife Salon", colors:[
+    {n:"Pure Black", h:"#0E0E0E"},
+    {n:"Rich Charcoal", h:"#2B2B2B"},
+    {n:"Warm Gray", h:"#9A948B"},
+    {n:"Champagne", h:"#D8C49A"},
+    {n:"Soft Ivory", h:"#FFF8EA"},
+  ]},
+  { title:"Altın Saat", colors:[
+    {n:"Espresso", h:"#2A1B12"},
+    {n:"Amber Clay", h:"#A8623C"},
+    {n:"Honey Sand", h:"#D9A968"},
+    {n:"Cream Gold", h:"#F6E4C4"},
+    {n:"Sunset Rose", h:"#E0876B"},
+  ]},
+];
+
+function luminance(hex){
+  const c = hex.replace('#','');
+  const r = parseInt(c.substr(0,2),16)/255;
+  const g = parseInt(c.substr(2,2),16)/255;
+  const b = parseInt(c.substr(4,2),16)/255;
+  const f = v => v<=0.03928 ? v/12.92 : Math.pow((v+0.055)/1.055, 2.4);
+  return 0.2126*f(r)+0.7152*f(g)+0.0722*f(b);
+}
+function textColor(hex){ return luminance(hex) > 0.42 ? '#171310' : '#FBF8F3'; }
+
+const feed = document.getElementById('feed');
+
+PALETTES.forEach((pal, pIdx) => {
+  const post = document.createElement('div');
+  post.className = 'post';
+  post.style.background = pal.colors[0].h;
+
+  const bg = document.createElement('div');
+  bg.className = 'post-bg';
+  bg.innerHTML = `
+    <div class="blob" style="width:60%;height:60%;left:-18%;top:-14%;background:${pal.colors[4].h};animation-delay:0s;"></div>
+    <div class="blob" style="width:55%;height:55%;right:-14%;top:26%;background:${pal.colors[2].h};animation-delay:-5s;"></div>
+    <div class="blob" style="width:50%;height:50%;left:18%;bottom:-18%;background:${pal.colors[1].h};animation-delay:-9s;"></div>
+    <div class="vignette"></div>
+  `;
+  post.appendChild(bg);
+
+  const fg = textColor(pal.colors[0].h);
+
+  const topbar = document.createElement('div');
+  topbar.className = 'topbar';
+  topbar.style.color = fg;
+  topbar.innerHTML = `
+    <div class="brand"><span class="dot">↗</span>PALET STÜDYO</div>
+    <div class="index">${String(pIdx+1).padStart(2,'0')} / ${PALETTES.length}</div>
+  `;
+  post.appendChild(topbar);
+
+  const titleWrap = document.createElement('div');
+  titleWrap.className = 'title-wrap';
+  titleWrap.style.color = fg;
+  titleWrap.innerHTML = `<h2>${pal.title}</h2>`;
+  post.appendChild(titleWrap);
+
+  const strip = document.createElement('div');
+  strip.className = 'strip';
+  pal.colors.forEach((c, cIdx) => {
+    const sw = document.createElement('div');
+    sw.className = 'swatch';
+    sw.style.background = c.h;
+    sw.style.color = textColor(c.h);
+    sw.style.animationDelay = (cIdx*0.3)+'s';
+    sw.style.transitionDelay = (cIdx*0.08)+'s';
+    sw.innerHTML = `
+      <div class="swatch-name">${c.n}</div>
+      <div class="swatch-hex">${c.h.toUpperCase()}</div>
+    `;
+    strip.appendChild(sw);
+  });
+  post.appendChild(strip);
+
+  const bottombar = document.createElement('div');
+  bottombar.className = 'bottombar';
+  bottombar.style.color = fg;
+  bottombar.innerHTML = `
+    <div>✦ palet.stüdyo</div>
+    <div>${String(pIdx+1).padStart(2,'0')}/${PALETTES.length}</div>
+  `;
+  post.appendChild(bottombar);
+
+  feed.appendChild(post);
+});
+
+/* ---------- görünüme girince kareyi canlandır ---------- */
+const posts = Array.from(document.querySelectorAll('.post'));
+const io = new IntersectionObserver((entries) => {
+  entries.forEach(entry => {
+    if (entry.isIntersecting && entry.intersectionRatio > 0.45) {
+      entry.target.classList.add('in-view');
+    } else {
+      entry.target.classList.remove('in-view');
+    }
+  });
+}, { threshold: [0, 0.45, 1] });
+
+posts.forEach(p => io.observe(p));
+</script>
+</body>
+</html>
