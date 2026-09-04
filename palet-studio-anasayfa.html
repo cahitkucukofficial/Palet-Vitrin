@@ -1,0 +1,205 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Palet Stüdyo</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;600;700&family=IBM+Plex+Mono:wght@400;500&display=swap');
+
+  * { margin:0; padding:0; box-sizing:border-box; }
+  html, body { height:100%; }
+  body {
+    font-family:'Space Grotesk', system-ui, sans-serif;
+    background:#0a0a0a;
+    color:#fff;
+    -webkit-font-smoothing:antialiased;
+    min-height:100dvh;
+    display:flex;
+    flex-direction:column;
+    position:relative;
+    overflow-x:hidden;
+  }
+
+  /* ---------- arka plan lekeleri ---------- */
+  .bg { position:fixed; inset:0; z-index:0; }
+  .blob {
+    position:absolute;
+    border-radius:50%;
+    filter: blur(70px);
+    opacity:.5;
+    animation: drift 16s ease-in-out infinite;
+  }
+  .vignette {
+    position:fixed; inset:0; z-index:0;
+    background: radial-gradient(120% 90% at 50% 10%, transparent 30%, rgba(0,0,0,.6) 100%);
+  }
+  @keyframes drift {
+    0%,100% { transform: translate(0,0) scale(1); }
+    33%     { transform: translate(4%,-5%) scale(1.08); }
+    66%     { transform: translate(-3%,4%) scale(0.96); }
+  }
+
+  /* ---------- üst şerit ---------- */
+  .topbar {
+    position:relative; z-index:2;
+    display:flex; align-items:center; justify-content:space-between;
+    padding: 26px 22px 0;
+  }
+  .brand { display:flex; align-items:center; gap:9px; font-weight:600; font-size:13px; letter-spacing:.02em; }
+  .brand .dot {
+    width:26px; height:26px; border-radius:50%;
+    border:1.4px solid rgba(255,255,255,.75);
+    display:flex; align-items:center; justify-content:center;
+    font-size:12px;
+  }
+  .tag { font-family:'IBM Plex Mono', monospace; font-size:12px; opacity:.6; letter-spacing:.04em; }
+
+  /* ---------- başlık alanı ---------- */
+  .hero {
+    position:relative; z-index:2;
+    padding: 46px 24px 8px;
+    max-width:640px;
+  }
+  .hero .eyebrow {
+    font-family:'IBM Plex Mono', monospace;
+    font-size:11.5px; letter-spacing:.14em; text-transform:uppercase;
+    opacity:.55; margin-bottom:14px;
+  }
+  .hero h1 {
+    font-size:clamp(30px, 7vw, 46px);
+    font-weight:700; letter-spacing:-.01em; line-height:1.05;
+  }
+  .hero p {
+    margin-top:14px;
+    font-size:14.5px; line-height:1.5; opacity:.7; max-width:460px;
+  }
+
+  /* ---------- proje kartları ---------- */
+  .cards {
+    position:relative; z-index:2;
+    flex:1;
+    display:flex; flex-direction:column; gap:16px;
+    padding: 28px 22px 40px;
+    max-width:640px;
+  }
+
+  .card {
+    position:relative;
+    border-radius:24px;
+    padding: 26px 24px;
+    overflow:hidden;
+    text-decoration:none;
+    color:inherit;
+    display:flex;
+    flex-direction:column;
+    gap:10px;
+    box-shadow: 0 16px 40px -18px rgba(0,0,0,.6);
+    opacity:0;
+    transform: translateY(22px);
+    transition: opacity .55s cubic-bezier(.2,.9,.25,1.35), transform .55s cubic-bezier(.2,.9,.25,1.35);
+  }
+  .card.in-view { opacity:1; transform: translateY(0); }
+  .card:active { transform: scale(.97); }
+
+  .card-bg { position:absolute; inset:0; z-index:0; }
+  .card-blob {
+    position:absolute; border-radius:50%; filter:blur(40px); opacity:.6;
+    animation: drift 12s ease-in-out infinite;
+  }
+
+  .card-index {
+    position:relative; z-index:1;
+    font-family:'IBM Plex Mono', monospace;
+    font-size:11.5px; opacity:.75; letter-spacing:.04em;
+  }
+  .card h2 {
+    position:relative; z-index:1;
+    font-size:22px; font-weight:700; letter-spacing:-.005em; line-height:1.1;
+  }
+  .card p {
+    position:relative; z-index:1;
+    font-size:12.5px; line-height:1.4; opacity:.8; max-width:340px;
+  }
+  .card .cta {
+    position:relative; z-index:1;
+    margin-top:8px;
+    display:inline-flex; align-items:center; gap:6px;
+    font-size:12.5px; font-weight:700;
+  }
+  .card .cta .arrow {
+    width:22px; height:22px; border-radius:50%;
+    background:rgba(255,255,255,.92); color:#111;
+    display:flex; align-items:center; justify-content:center;
+    font-size:12px;
+  }
+
+  /* ---------- alt bilgi ---------- */
+  .footer {
+    position:relative; z-index:2;
+    padding: 0 24px 30px;
+    font-family:'IBM Plex Mono', monospace;
+    font-size:11px; opacity:.45;
+  }
+</style>
+</head>
+<body>
+
+<div class="bg" id="bg">
+  <div class="blob" style="width:55vw;height:55vw;left:-15%;top:-12%;background:#B86F52;"></div>
+  <div class="blob" style="width:50vw;height:50vw;right:-16%;top:20%;background:#8C8A68;animation-delay:-6s;"></div>
+  <div class="blob" style="width:45vw;height:45vw;left:10%;bottom:-18%;background:#3A2A22;animation-delay:-10s;"></div>
+</div>
+<div class="vignette"></div>
+
+<div class="topbar">
+  <div class="brand"><span class="dot">↗</span>PALET STÜDYO</div>
+  <div class="tag">2 PROJE</div>
+</div>
+
+<div class="hero">
+  <div class="eyebrow">Renk Paleti Vitrini</div>
+  <h1>İki farklı gösterim, aynı 10 palet.</h1>
+  <p>Kaydırmalı tam ekran vitrinden kare Instagram gönderilerine — aynı renk sistemi, iki farklı biçimde.</p>
+</div>
+
+<div class="cards" id="cards">
+
+  <a class="card" href="vitrin.html" style="background:#16302E;">
+    <div class="card-bg">
+      <div class="card-blob" style="width:70%;height:140%;right:-20%;top:-20%;background:#D97757;"></div>
+      <div class="card-blob" style="width:60%;height:120%;left:-15%;bottom:-30%;background:#5C7A78;animation-delay:-4s;"></div>
+    </div>
+    <div class="card-index">01 · KAYDIRMALI VİTRİN</div>
+    <h2>Palet Vitrin Demo</h2>
+    <p>10 palet, tam ekran panellerde yatay kaydırarak gezilir. Her panelde 5 renk kartı canlanır.</p>
+    <div class="cta">Aç <span class="arrow">→</span></div>
+  </a>
+
+  <a class="card" href="instagram.html" style="background:#3A2A22;">
+    <div class="card-bg">
+      <div class="card-blob" style="width:70%;height:140%;right:-20%;top:-20%;background:#B86F52;"></div>
+      <div class="card-blob" style="width:60%;height:120%;left:-15%;bottom:-30%;background:#D9BFA3;animation-delay:-4s;"></div>
+    </div>
+    <div class="card-index">02 · KARE GÖNDERİ SERİSİ</div>
+    <h2>Instagram Serisi</h2>
+    <p>Aynı 10 palet, 1:1 kare formatında ayrı ayrı gönderi kartlarına dönüştürüldü.</p>
+    <div class="cta">Aç <span class="arrow">→</span></div>
+  </a>
+
+</div>
+
+<div class="footer">✦ palet.stüdyo — GitHub Pages</div>
+
+<script>
+  const cards = document.querySelectorAll('.card');
+  const io = new IntersectionObserver((entries) => {
+    entries.forEach(e => { if (e.isIntersecting) e.target.classList.add('in-view'); });
+  }, { threshold: 0.2 });
+  cards.forEach((c, i) => {
+    c.style.transitionDelay = (i * 0.1) + 's';
+    io.observe(c);
+  });
+</script>
+</body>
+</html>
